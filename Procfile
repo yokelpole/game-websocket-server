@@ -1,1 +1,1 @@
-web: chat 
+web: game-websocket-server 
