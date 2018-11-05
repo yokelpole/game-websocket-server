@@ -30,11 +30,11 @@ const (
 	maxMessageSize = 512
 )
 
-type State struct {
-	Objects map[string]ObjectInfo `json:"objects"`
+type state struct {
+	Objects map[string]objectInfo `json:"objects"`
 }
 
-type ObjectInfo struct {
+type objectInfo struct {
 	ID         string `json:"id"`
 	ObjectType string `json:"type"`
 	X          int    `json:"x"`
@@ -42,10 +42,10 @@ type ObjectInfo struct {
 }
 
 var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
-	state   = State{
-		Objects: map[string]ObjectInfo{},
+	newline   = []byte{'\n'}
+	space     = []byte{' '}
+	gameState = state{
+		Objects: map[string]objectInfo{},
 	}
 )
 
@@ -89,28 +89,28 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		var object ObjectInfo
-		json.Unmarshal([]byte(message), &object)
-
-		// TODO: clean up dead players after x # of moves.
+		var messageObjects []objectInfo
+		json.Unmarshal([]byte(message), &messageObjects)
 
 		mutex.Lock()
-		// Remove the existing object if it exists in state
-		delete(state.Objects, object.ID)
+		for _, newObject := range messageObjects {
+			fmt.Println(newObject)
+			// Remove the existing object if it exists in state
+			delete(gameState.Objects, newObject.ID)
 
-		if len(state.Objects) > 8 {
-			for _, player := range state.Objects {
+			gameState.Objects[newObject.ID] = newObject
+		}
+
+		// TODO: this cleanup can probably go elsewhere
+		if len(gameState.Objects) > 8 {
+			for _, player := range gameState.Objects {
 				if player.ObjectType == "dead" {
-					delete(state.Objects, player.ID)
+					delete(gameState.Objects, player.ID)
 				}
 			}
 		}
 
-		state.Objects[object.ID] = object
-
 		mutex.Unlock()
-
-		fmt.Println(state.Objects)
 
 		c.hub.broadcast <- message
 	}
@@ -143,7 +143,7 @@ func (c *Client) writePump() {
 			}
 
 			mutex.Lock()
-			json, err := json.Marshal(state)
+			json, err := json.Marshal(gameState)
 			mutex.Unlock()
 			if err != nil {
 				return
