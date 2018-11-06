@@ -36,6 +36,7 @@ type state struct {
 
 type objectInfo struct {
 	ID         string `json:"id"`
+	ParentID   string `json:"parent_id"`
 	ObjectType string `json:"type"`
 	X          int    `json:"x"`
 	Y          int    `json:"y"`
