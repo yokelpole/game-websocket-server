@@ -103,11 +103,9 @@ func (c *Client) readPump() {
 		}
 
 		// TODO: this cleanup can probably go elsewhere
-		if len(gameState.Objects) > 8 {
-			for _, player := range gameState.Objects {
-				if player.ObjectType == "dead" {
-					delete(gameState.Objects, player.ID)
-				}
+		for _, player := range gameState.Objects {
+			if player.ObjectType == "dead" {
+				delete(gameState.Objects, player.ID)
 			}
 		}
 
