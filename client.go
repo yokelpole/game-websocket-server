@@ -36,10 +36,11 @@ type state struct {
 
 type objectInfo struct {
 	ID         string `json:"id"`
-	ParentID   string `json:"parent_id"`
+	ParentID   string `json:"parentId"`
 	ObjectType string `json:"type"`
 	X          int    `json:"x"`
 	Y          int    `json:"y"`
+	TimeStamp  int64  `json:"timestamp"`
 }
 
 var (
@@ -102,13 +103,6 @@ func (c *Client) readPump() {
 			gameState.Objects[newObject.ID] = newObject
 		}
 
-		// TODO: this cleanup can probably go elsewhere
-		for _, player := range gameState.Objects {
-			if player.ObjectType == "dead" {
-				delete(gameState.Objects, player.ID)
-			}
-		}
-
 		mutex.Unlock()
 
 		c.hub.broadcast <- message
@@ -149,6 +143,13 @@ func (c *Client) writePump() {
 			}
 
 			w.Write(json)
+
+			// TODO: this cleanup can probably go elsewhere
+			for _, player := range gameState.Objects {
+				if player.ObjectType == "dead" && player.TimeStamp-time.Now().Unix() > 10 {
+					delete(gameState.Objects, player.ID)
+				}
+			}
 
 			if err := w.Close(); err != nil {
 				return
