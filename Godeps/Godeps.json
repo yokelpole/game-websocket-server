@@ -2,6 +2,9 @@
 	"ImportPath": "github.com/yokelpole/game-websocket-server",
 	"GoVersion": "go1.10",
 	"GodepVersion": "v80",
+	"Packages": [
+		"./"
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/gorilla/websocket",
