@@ -145,11 +145,19 @@ func (c *Client) writePump() {
 			w.Write(json)
 
 			// TODO: this cleanup can probably go elsewhere
-			for _, player := range gameState.Objects {
-				if player.ObjectType == "dead" && player.TimeStamp-time.Now().Unix() > 10 {
-					delete(gameState.Objects, player.ID)
+			var objectsToDelete []objectInfo
+
+			mutex.Lock()
+			for _, object := range gameState.Objects {
+				if object.ObjectType == "dead" && object.TimeStamp-time.Now().Unix() > 10 {
+					objectsToDelete = append(objectsToDelete, object)
 				}
 			}
+
+			for _, object := range objectsToDelete {
+				delete(gameState.Objects, object.ID)
+			}
+			mutex.Unlock()
 
 			if err := w.Close(); err != nil {
 				return
