@@ -27,7 +27,7 @@ const (
 	pingPeriod = (pongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
-	maxMessageSize = 512
+	maxMessageSize = 4096
 )
 
 type state struct {
@@ -41,6 +41,7 @@ type objectInfo struct {
 	X          int    `json:"x"`
 	Y          int    `json:"y"`
 	TimeStamp  int64  `json:"timestamp"`
+	Health     int    `json:"health"`
 }
 
 var (
@@ -149,7 +150,7 @@ func (c *Client) writePump() {
 
 			mutex.Lock()
 			for _, object := range gameState.Objects {
-				if object.ObjectType == "dead" && object.TimeStamp-time.Now().Unix() > 10 {
+				if object.Health <= 0 && time.Now().Unix()-object.TimeStamp > 5 {
 					objectsToDelete = append(objectsToDelete, object)
 				}
 			}
