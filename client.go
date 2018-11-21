@@ -35,13 +35,13 @@ type state struct {
 }
 
 type objectInfo struct {
-	ID         string `json:"id"`
-	ParentID   string `json:"parentId"`
-	ObjectType string `json:"type"`
-	X          int    `json:"x"`
-	Y          int    `json:"y"`
-	TimeStamp  int64  `json:"timestamp"`
-	Health     int    `json:"health"`
+	ID         string  `json:"id"`
+	ParentID   string  `json:"parentId"`
+	ObjectType string  `json:"type"`
+	X          float32 `json:"x"`
+	Y          float32 `json:"y"`
+	TimeStamp  int64   `json:"timestamp"`
+	Health     int     `json:"health"`
 }
 
 var (
